@@ -105,26 +105,75 @@ class SettingDialog : MaterialDialogFragment() {
                     }
                 }
 
-                spFindConf.apply {
-                    buildSpinner(resources.getStringArray(R.array.conf_array), this)
-                    when (findConf) {
-                        "config.yaml" -> setSelection(0)
-                        "config2.yaml" -> setSelection(1)
-                        else -> setSelection(2)
-                    }
-                    onItemSelectedListener = object : OnItemSelectedListener {
-                        override fun onItemSelected(
-                            p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long
-                        ) {
-                            when (p2) {
-                                1 -> setFindConf("config2.yaml")
-                                2 -> setFindConf("config3.yaml")
-                                else -> setFindConf("config.yaml")
-                            }
-                        }
-                        override fun onNothingSelected(p0: AdapterView<*>?) {}
-                    }
+val spFindConf = findViewById<Spinner>(R.id.spFindConf)
+val configArray = resources.getStringArray(R.array.conf_array).toMutableList()
+
+val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, configArray)
+adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+spFindConf.adapter = adapter
+
+// Set default selection
+spFindConf.setSelection(configArray.indexOf(findConf ?: "default"))
+
+val etOtherConfig = findViewById<EditText>(R.id.etOtherConfig)  // EditText untuk input manual
+etOtherConfig.visibility = View.GONE  // Sembunyikan EditText awalnya
+
+spFindConf.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+    override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+        when (p2) {
+            configArray.indexOf("other") -> {
+                etOtherConfig.visibility = View.VISIBLE  // Tampilkan EditText jika memilih "other"
+                etOtherConfig.setText(findConf)  // Isi EditText dengan nilai yang ada
+                etOtherConfig.requestFocus()  // Fokus ke EditText
+            }
+            else -> {
+                etOtherConfig.visibility = View.GONE  // Sembunyikan EditText jika memilih opsi lain
+                when (p2) {
+                    1 -> setFindConf("config2")
+                    2 -> setFindConf("config3")
+                    else -> setFindConf("default")
                 }
+            }
+        }
+    }
+
+    override fun onNothingSelected(p0: AdapterView<*>?) {}
+}
+
+// Tambahkan listener untuk menangani input manual dari EditText
+etOtherConfig.addTextChangedListener(object : TextWatcher {
+    override fun afterTextChanged(s: Editable?) {
+        val typedConfig = s.toString()
+        if (typedConfig.isNotEmpty()) {
+            setFindConf(typedConfig)
+        }
+    }
+
+    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+})
+
+                // spFindConf.apply {
+                    // buildSpinner(resources.getStringArray(R.array.conf_array), this)
+                    // when (findConf) {
+                        // "config.yaml" -> setSelection(0)
+                        // "config2.yaml" -> setSelection(1)
+                        // else -> setSelection(2)
+                    // }
+                    // onItemSelectedListener = object : OnItemSelectedListener {
+                        // override fun onItemSelected(
+                            // p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long
+                        // ) {
+                            // when (p2) {
+                                // 1 -> setFindConf("config2.yaml")
+                                // 2 -> setFindConf("config3.yaml")
+                                // else -> setFindConf("config.yaml")
+                            // }
+                        // }
+                        // override fun onNothingSelected(p0: AdapterView<*>?) {}
+                    // }
+                // }
 
                 spClashType.apply {
                     buildSpinner(resources.getStringArray(R.array.clash_core_array), this)

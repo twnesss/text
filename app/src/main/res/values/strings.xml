@@ -63,6 +63,7 @@
         <item>default</item>
         <item>config2</item>
         <item>config3</item>
+        <item>other</item>
     </string-array>
 
     <string-array name="clash_core_array">
